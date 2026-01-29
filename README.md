@@ -23,7 +23,7 @@ AniMind is a comprehensive anime discovery and streaming web application. It all
 
 1. **Clone the repository**
    ```bash
-   git clone [https://github.com/FNXDOOM/AniMind.git](https://github.com/FNXDOOM/AniMind.git)
+   git clone [https://github.com/FNXDOOM/AniMind.git]
    cd AniMind
 
 ## Run Locally
