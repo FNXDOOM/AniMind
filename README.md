@@ -1,6 +1,6 @@
 # AniMind - Anime Discovery & Streaming Platform
 
-![AniMind Banner](https://via.placeholder.com/1200x300?text=AniMind+Preview) 
+![AniMind Banner](assests/banner.png) 
 
 
 ## 🚀 Overview
