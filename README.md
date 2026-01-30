@@ -3,36 +3,66 @@
 ![AniMind Banner](assests/banner.png) 
 
 
-## 🚀 Overview
-AniMind is a comprehensive anime discovery and streaming web application. It allows users to search for anime, view details (synopsis, rating, genres), and stream episodes directly. The platform leverages public APIs to fetch real-time data and provide a seamless viewing experience.
+# 🎌 AniMind — AI-Powered Anime Discovery Platform
 
-## ✨ Features
-- **Search & Discovery**: Browse trending, popular, and upcoming anime.
-- **Detailed Info**: View synopsis, characters, studios, and score distributions.
-- **Streaming**: Watch episodes directly within the app (embedded player).
-- **User Lists**: (Optional: If you have this) Track "Watching", "Completed", and "Plan to Watch" lists.
-- **Responsive Design**: Optimized for both desktop and mobile viewing.
+AniMind is a modern **anime discovery web application** built with **React + Vite + TypeScript**.  
+It uses the **AniList GraphQL API** for anime data 
+
+This project is designed to be **fast, clean, and scalable**, making it suitable for learning
+
+---
+
+## 🚀 Features
+
+- 🔍 Discover anime using AniList
+- 📄 Detailed anime view (genres, episodes, ratings, description)
+- 🤖 AI-powered anime summaries & explanations (Gemini)
+- 🎥 Trailer / video modal support
+- ⚡ Ultra-fast Vite-based setup
+- 🧩 Clean, modular React component architecture
+
+---
 
 ## 🛠️ Tech Stack
-- **Frontend**: [e.g., React.js / Vue.js / HTML5 & CSS3]
-- **Backend**: [Node.js]
-- **API**: [Gemini API / AniList API]
-- **Hosting**: [Vercel]
+
+- **Frontend:** React + TypeScript
+- **Build Tool:** Vite
+- **APIs:**
+  - AniList GraphQL API
+- **Styling:** CSS (component-based)
+- **State Management:** React Hooks
+
+---
+
+## 📁 Project Structure
+```
+animind/
+├── components/
+│ ├── AnimeCard.tsx
+│ ├── DetailView.tsx
+│ ├── Layout.tsx
+│ └── VideoModal.tsx
+│
+├── services/
+│ ├── anilistService.ts
+│
+├── types.ts
+├── App.tsx
+├── index.tsx
+├── index.html
+├── vite.config.ts
+├── tsconfig.json
+├── package.json
+├── .env.local
+```
+
+---
 
 ## ⚙️ Installation & Setup
 
-1. **Clone the repository**
-   ```bash
-   git clone [https://github.com/FNXDOOM/AniMind.git]
-   cd AniMind
+### 1️⃣ Clone or Extract the Project
 
-## Run Locally
+```bash
+git clone <repository-url>
+cd animind
 
-**Prerequisites:**  Node.js
-
-
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
