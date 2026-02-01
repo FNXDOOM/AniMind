@@ -3,7 +3,7 @@
 ![AniMind Banner](assests/Banner.png) 
 
 
-# 🎌 AniMind — AI-Powered Anime Discovery Platform
+# 🎌 AniMind
 
 AniMind is a modern **anime discovery web application** built with **React + Vite + TypeScript**.  
 It uses the **AniList GraphQL API** for anime data 
