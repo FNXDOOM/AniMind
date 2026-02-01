@@ -1,20 +1,68 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# AniMind - Anime Discovery & Streaming Platform
 
-# Run and deploy your AI Studio app
-
-This contains everything you need to run your app locally.
-
-View your app in AI Studio: https://ai.studio/apps/drive/1Cu7ELqoCddIpHDip5n6DAJxLDB5opL3k
-
-## Run Locally
-
-**Prerequisites:**  Node.js
+![AniMind Banner](assests/Banner.png) 
 
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+# 🎌 AniMind — AI-Powered Anime Discovery Platform
+
+AniMind is a modern **anime discovery web application** built with **React + Vite + TypeScript**.  
+It uses the **AniList GraphQL API** for anime data 
+
+This project is designed to be **fast, clean, and scalable**, making it suitable for learning
+
+---
+
+## 🚀 Features
+
+- 🔍 Discover anime using AniList
+- 📄 Detailed anime view (genres, episodes, ratings, description)
+- 🤖 AI-powered anime summaries & explanations (Gemini)
+- 🎥 Trailer / video modal support
+- ⚡ Ultra-fast Vite-based setup
+- 🧩 Clean, modular React component architecture
+
+---
+
+## 🛠️ Tech Stack
+
+- **Frontend:** React + TypeScript
+- **Build Tool:** Vite
+- **APIs:**
+  - AniList GraphQL API
+- **Styling:** CSS (component-based)
+- **State Management:** React Hooks
+
+---
+
+## 📁 Project Structure
+```
+animind/
+├── components/
+│ ├── AnimeCard.tsx
+│ ├── DetailView.tsx
+│ ├── Layout.tsx
+│ └── VideoModal.tsx
+│
+├── services/
+│ ├── anilistService.ts
+│
+├── types.ts
+├── App.tsx
+├── index.tsx
+├── index.html
+├── vite.config.ts
+├── tsconfig.json
+├── package.json
+├── .env.local
+```
+
+---
+
+## ⚙️ Installation & Setup
+
+### 1️⃣ Clone or Extract the Project
+
+```bash
+git clone <repository-url>
+cd animind
+
