@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Menu, X, Home, Search, Heart, LogOut } from 'lucide-react';
+import { Menu, X, Home, Search, Heart, LogOut, Trash2 } from 'lucide-react';
 import { ViewState, User } from '../types';
 
 interface LayoutProps {
@@ -8,9 +8,10 @@ interface LayoutProps {
   onChangeView: (view: ViewState) => void;
   user: User;
   onLogout: () => void;
+  onDeleteAccount: () => void;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children, currentView, onChangeView, user, onLogout }) => {
+const Layout: React.FC<LayoutProps> = ({ children, currentView, onChangeView, user, onLogout, onDeleteAccount }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const navItems = [
@@ -79,9 +80,16 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, onChangeView, us
 
            <button 
              onClick={onLogout}
-             className="w-full flex items-center justify-center gap-2 text-sm text-gray-400 hover:text-red-400 hover:bg-red-500/10 py-2 rounded-lg transition-colors"
+             className="w-full flex items-center justify-center gap-2 text-sm text-gray-400 hover:text-white hover:bg-white/5 py-2 rounded-lg transition-colors"
            >
               <LogOut size={16} /> Log Out
+           </button>
+
+           <button 
+             onClick={onDeleteAccount}
+             className="w-full flex items-center justify-center gap-2 text-xs text-red-500/60 hover:text-red-500 hover:bg-red-500/10 py-2 rounded-lg transition-colors"
+           >
+              <Trash2 size={14} /> Delete Account
            </button>
            
           <div className="text-xs text-center text-gray-600 pt-2 font-medium">

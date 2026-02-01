@@ -25,14 +25,15 @@ export const fetchWatchlist = async (userId: string): Promise<Anime[]> => {
       return localData.map((item: any) => ({
           ...item.anime_data,
           userStatus: item.status
-      }));
+      })).reverse(); // Simple reverse for mock to simulate newest first
   }
 
   try {
     const { data, error } = await supabase
       .from('watchlist')
       .select('*')
-      .eq('user_id', userId);
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false }); // Optimized with Index
 
     if (error) {
       console.error('Error fetching watchlist:', error);
@@ -152,7 +153,6 @@ export const saveProgress = async (userId: string, animeId: string, episodeIndex
               anime_id: animeId,
               episode_index: episodeIndex,
               timestamp: timestamp,
-              updated_at: new Date().toISOString()
           }, { onConflict: 'user_id, anime_id, episode_index' });
       
       if (error) console.error('Error saving progress:', error);
@@ -183,4 +183,27 @@ export const getProgress = async (userId: string, animeId: string, episodeIndex:
     } catch (error) {
       return 0;
     }
+};
+
+
+export const getContinueWatching = async (userId: string): Promise<Anime[]> => {
+  try {
+    const { data, error } = await supabase
+      .from('continue_watching')
+      .select('*')
+      .eq('user_id', userId)
+      .order('updated_at', { ascending: false })
+      .limit(10);
+
+    if (error || !data) return [];
+
+    return data.map((item: any) => ({
+      ...item.anime_data,
+      lastWatchedEpisode: item.episode_index,
+      lastWatchedTimestamp: item.timestamp
+    }));
+  } catch (error) {
+    console.error("Continue watching fetch error:", error);
+    return [];
+  }
 };

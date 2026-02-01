@@ -1,37 +1,27 @@
 import { supabase } from './supabase';
 import { User } from '../types';
 
-const DEV_USER_KEY = 'animind_dev_user';
-const DEV_USER: User = {
-  id: 'dev-user-id',
-  username: 'DevUser',
-  avatar: 'https://ui-avatars.com/api/?name=Dev+User&background=10b981&color=fff&bold=true',
-  email: 'demo@example.com'
-};
 
 export const signUp = async (email: string, password: string, username: string): Promise<{ user: User | null, error: any }> => {
   try {
-    // 1. Sign up the user
+    const avatar = `https://ui-avatars.com/api/?name=${username}&background=8b5cf6&color=fff&bold=true`;
+
+    // 1. Sign up the user with metadata
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
+      options: {
+        data: {
+          username: username,
+          avatar_url: avatar
+        }
+      }
     });
 
     if (error) return { user: null, error };
     
     if (data && data.user) {
-      // 2. Create a profile entry
-      const avatar = `https://ui-avatars.com/api/?name=${username}&background=8b5cf6&color=fff&bold=true`;
-      
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .insert([
-          { id: data.user.id, username, avatar_url: avatar }
-        ]);
-
-      if (profileError) {
-          console.error("Error creating profile:", profileError);
-      }
+      // 2. Create a profile entry (Database backup)
 
       return {
         user: {
@@ -52,12 +42,6 @@ export const signUp = async (email: string, password: string, username: string):
 };
 
 export const signIn = async (email: string, password: string): Promise<{ user: User | null, error: any }> => {
-  // --- DEV BYPASS ---
-  if (email === 'demo@example.com' && password === 'password') {
-    localStorage.setItem(DEV_USER_KEY, JSON.stringify(DEV_USER));
-    return { user: DEV_USER, error: null };
-  }
-  // ------------------
 
   try {
     const { data, error } = await supabase.auth.signInWithPassword({
@@ -68,18 +52,29 @@ export const signIn = async (email: string, password: string): Promise<{ user: U
     if (error) return { user: null, error };
 
     if (data && data.user) {
-      // Fetch profile
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('username, avatar_url')
-        .eq('id', data.user.id)
-        .single();
+      // Try to get from metadata first (fastest)
+      let username = data.user.user_metadata?.username;
+      let avatar = data.user.user_metadata?.avatar_url;
+
+      // If missing, fetch from profile
+      if (!username) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('username, avatar_url')
+          .eq('id', data.user.id)
+          .single();
+        
+        if (profile) {
+            username = profile.username;
+            avatar = profile.avatar_url;
+        }
+      }
 
       return {
         user: {
           id: data.user.id,
-          username: profile?.username || email.split('@')[0],
-          avatar: profile?.avatar_url,
+          username: username || email.split('@')[0], // Ultimate fallback
+          avatar: avatar,
           email: data.user.email
         },
         error: null
@@ -94,8 +89,6 @@ export const signIn = async (email: string, password: string): Promise<{ user: U
 };
 
 export const signOut = async () => {
-  // Clear Dev User
-  localStorage.removeItem(DEV_USER_KEY);
   
   try {
     await supabase.auth.signOut();
@@ -104,14 +97,24 @@ export const signOut = async () => {
   }
 };
 
-export const getCurrentUser = async (): Promise<User | null> => {
-  // --- DEV BYPASS CHECK ---
-  const devUser = localStorage.getItem(DEV_USER_KEY);
-  if (devUser) {
-    return JSON.parse(devUser);
+export const deleteAccount = async () => {
+  
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.user) {
+        // Attempt to delete profile row. RLS policies must allow this.
+        await supabase.from('profiles').delete().eq('id', session.user.id);
+        await supabase.auth.signOut();
+    }
+  } catch (error) {
+    console.error("Delete account error:", error);
+    // Force signout just in case
+    await supabase.auth.signOut();
   }
-  // ------------------------
+};
 
+export const getCurrentUser = async (): Promise<User | null> => {
+  
   try {
     const response = await supabase.auth.getSession();
     
@@ -125,21 +128,29 @@ export const getCurrentUser = async (): Promise<User | null> => {
     }
 
     const user = response.data.session.user;
-
-    const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('username, avatar_url')
-        .eq('id', user.id)
-        .single();
     
-    if (profileError) {
-        console.warn("Profile fetch warning:", profileError.message);
+    let username = user.user_metadata?.username;
+    let avatar = user.user_metadata?.avatar_url;
+
+    if (!username) {
+        const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('username, avatar_url')
+            .eq('id', user.id)
+            .single();
+        
+        if (profile) {
+            username = profile.username;
+            avatar = profile.avatar_url;
+        } else if (profileError) {
+             console.warn("Profile fetch warning:", profileError.message);
+        }
     }
 
     return {
       id: user.id,
-      username: profile?.username || user.email?.split('@')[0] || 'User',
-      avatar: profile?.avatar_url,
+      username: username || user.email?.split('@')[0] || 'User',
+      avatar: avatar,
       email: user.email
     };
   } catch (error) {

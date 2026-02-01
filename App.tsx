@@ -4,8 +4,9 @@ import Login from './components/Login';
 import AnimeCard from './components/AnimeCard';
 import DetailView from './components/DetailView';
 import VideoModal from './components/VideoModal';
+import ConfirmationModal from './components/ConfirmationModal';
 import { searchAnime, getTrendingAnime, getSearchSuggestions as getAniListSuggestions } from './services/anilistService';
-import { getCurrentUser, signIn, signUp, signOut } from './services/authService';
+import { getCurrentUser, signIn, signUp, signOut, deleteAccount } from './services/authService';
 import { fetchWatchlist, addToWatchlist, removeFromWatchlist, updateWatchlistStatus } from './services/dbService';
 import { Anime, ViewState, WatchStatus, User } from './types';
 import { Search, Sparkles, Loader2, HeartCrack, Heart, ArrowUpRight, ChevronDown, RefreshCw } from 'lucide-react';
@@ -40,6 +41,9 @@ const App: React.FC = () => {
   const [page, setPage] = useState(1);
   const observerRef = useRef<IntersectionObserver | null>(null);
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
+
+  // UI State
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   // 1. Initial Auth Check & Data Load
   useEffect(() => {
@@ -107,6 +111,20 @@ const App: React.FC = () => {
     setUser(null);
     setCurrentView(ViewState.HOME);
     setWatchlist([]);
+  };
+
+  // Handle Delete Account Request (Opens Modal)
+  const handleDeleteAccountRequest = () => {
+    setIsDeleteModalOpen(true);
+  };
+
+  // Handle Actual Deletion
+  const handleConfirmDeleteAccount = async () => {
+    await deleteAccount();
+    setUser(null);
+    setCurrentView(ViewState.HOME);
+    setWatchlist([]);
+    setIsDeleteModalOpen(false);
   };
 
   // Search Suggestions Debounce (Standard AniList)
@@ -319,7 +337,7 @@ const App: React.FC = () => {
                 <div className="flex-1 relative w-full max-w-md md:max-w-full flex justify-center">
                     <div className="absolute inset-0 bg-primary/20 blur-[100px] rounded-full scale-75" />
                     <img 
-                        src="https://wallpapercave.com/wp/wp4750464.jpg" 
+                        src="https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx154587-g412XF1q74zF.jpg" 
                         className="relative z-10 w-72 md:w-96 rounded-3xl shadow-2xl border border-white/10 rotate-3 hover:rotate-0 transition-transform duration-500"
                         alt="Hero Anime"
                     />
@@ -573,6 +591,7 @@ const App: React.FC = () => {
       }}
       user={user}
       onLogout={handleLogout}
+      onDeleteAccount={handleDeleteAccountRequest}
     >
       {renderContent()}
       
@@ -583,6 +602,14 @@ const App: React.FC = () => {
           userId={user.id}
         />
       )}
+      
+      <ConfirmationModal 
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleConfirmDeleteAccount}
+        title="Delete Account?"
+        message="This action cannot be undone. All your watchlist data and viewing progress will be permanently lost."
+      />
     </Layout>
   );
 };

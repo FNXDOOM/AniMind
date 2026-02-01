@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sparkles, ArrowRight, Mail, Lock, User as UserIcon, Loader2, Code2 } from 'lucide-react';
+import { Sparkles, ArrowRight, Mail, Lock, User as UserIcon, Loader2 } from 'lucide-react';
 
 interface LoginProps {
   onLogin: (email: string, password: string, username?: string, isSignUp?: boolean) => Promise<void>;
@@ -33,9 +33,7 @@ const Login: React.FC<LoginProps> = ({ onLogin, loading = false }) => {
     }
   };
 
-  const handleDemoLogin = () => {
-      onLogin('demo@example.com', 'password');
-  };
+
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4 relative overflow-hidden font-sans">
@@ -119,20 +117,6 @@ const Login: React.FC<LoginProps> = ({ onLogin, loading = false }) => {
             </button>
           </form>
 
-          <div className="my-6 flex items-center gap-4">
-              <div className="h-px bg-white/5 flex-1"></div>
-              <span className="text-xs text-gray-600 uppercase font-bold tracking-wider">Or</span>
-              <div className="h-px bg-white/5 flex-1"></div>
-          </div>
-
-          <button
-              onClick={handleDemoLogin}
-              type="button"
-              className="w-full bg-white/5 hover:bg-white/10 text-gray-300 border border-white/5 font-medium py-3 rounded-xl transition-all flex items-center justify-center gap-2 text-sm"
-            >
-              <Code2 size={18} className="text-primary" />
-              Try Demo Account
-          </button>
 
           <div className="mt-8 text-center">
             <button 
