@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- Security Headers -->
+    <meta http-equiv="Content-Security-Policy" 
+          content="default-src 'self'; 
+                   script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://esm.sh; 
+                   style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; 
+                   font-src 'self' https://fonts.gstatic.com;
+                   img-src 'self' data: https: blob:;
+                   connect-src 'self' https://*.supabase.co https://graphql.anilist.co;
+                   frame-ancestors 'none';
+                   base-uri 'self';
+                   form-action 'self';">
+    
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <meta http-equiv="Permissions-Policy" content="geolocation=(), microphone=(), camera=()">
+    
+    <!-- App Metadata -->
+    <title>AniMind - Discover Your Next Anime</title>
+    <meta name="description" content="Discover, track, and enjoy your favorite anime with AniMind - your personal anime discovery platform.">
+    <meta name="theme-color" content="#000000">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              background: '#000000', // Pitch Black
+              surface: '#171717',    // Neutral Dark Gray
+              primary: '#38bdf8',    // Sky Blue (Left side of image)
+              secondary: '#facc15',  // Warm Yellow (Right side of image)
+            },
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+            },
+          },
+        },
+      }
+    </script>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Custom Styles -->
+    <style>
+      body {
+        font-family: 'Inter', sans-serif;
+        background-color: #000000; /* Pitch Black */
+        color: #f8fafc;
+        min-height: 100vh;
+      }
+      
+      /* Custom scrollbar */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #000000;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #333333;
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #38bdf8;
+      }
+      
+      /* Security: Prevent text selection on sensitive elements */
+      .no-select {
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+      }
+    </style>
+    
+    <!-- Import Maps -->
+    <script type="importmap">
+    {
+      "imports": {
+        "react/": "https://esm.sh/react@^19.2.4/",
+        "react": "https://esm.sh/react@^19.2.4",
+        "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+        "lucide-react": "https://esm.sh/lucide-react@^0.563.0",
+        "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2.39.7"
+      }
+    }
+    </script>
+    
+    <link rel="stylesheet" href="/index.css">
+  </head>
+  <body>
+    <noscript>
+      <div style="padding: 20px; text-align: center; color: #fff;">
+        <h1>JavaScript Required</h1>
+        <p>AniMind requires JavaScript to run. Please enable JavaScript in your browser settings.</p>
+      </div>
+    </noscript>
+    
+    <div id="root"></div>
+    
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
