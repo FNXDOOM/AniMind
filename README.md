@@ -1,4 +1,4 @@
-# AniMind - Anime Discovery & Streaming Platform
+# AniMind - Anime Discovery & Self Hosted Personal Streaming Platform
 
 ![AniMind Banner](assests/Banner.png) 
 
