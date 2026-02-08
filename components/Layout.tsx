@@ -35,7 +35,7 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, onChangeView, us
     <div className="min-h-screen bg-background text-white font-sans selection:bg-primary selection:text-black flex flex-col">
       
       {/* Navbar */}
-      <nav className="sticky top-0 z-50 bg-[#0a0a0a]/90 backdrop-blur-xl border-b border-white/5 supports-[backdrop-filter]:bg-[#0a0a0a]/60">
+      <nav className="sticky top-0 z-[100] bg-[#0a0a0a]/90 backdrop-blur-xl border-b border-white/5 supports-[backdrop-filter]:bg-[#0a0a0a]/60">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 md:h-20">
             

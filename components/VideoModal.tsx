@@ -213,7 +213,7 @@ const VideoModal: React.FC<VideoModalProps> = ({ anime, onClose, userId, mode = 
       const embedUrl = `https://www.youtube.com/embed/${trailerId}?autoplay=1&rel=0&modestbranding=1&playsinline=1&origin=${encodeURIComponent(origin)}`;
 
       return (
-          <div className="fixed inset-0 z-[100] bg-black/95 flex flex-col items-center justify-center p-4 animate-in fade-in duration-300 backdrop-blur-md">
+          <div className="fixed inset-0 z-[200] bg-black/95 flex flex-col items-center justify-center p-4 animate-in fade-in duration-300 backdrop-blur-md">
               <button 
                 onClick={onClose} 
                 className="absolute top-6 right-6 text-white/50 hover:text-white transition-colors bg-white/10 hover:bg-white/20 p-3 rounded-full z-50"
@@ -599,7 +599,7 @@ const VideoModal: React.FC<VideoModalProps> = ({ anime, onClose, userId, mode = 
 
   return (
     <div 
-      className="fixed inset-0 z-[100] bg-[#000000] text-white flex animate-in fade-in duration-300 font-sans overflow-hidden"
+      className="fixed inset-0 z-[200] bg-[#000000] text-white flex animate-in fade-in duration-300 font-sans overflow-hidden"
       role="dialog"
       aria-label="Video player"
     >
