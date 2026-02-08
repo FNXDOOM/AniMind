@@ -180,12 +180,18 @@ export const getAnimeDetails = async (id: string): Promise<AnimeDetails | null> 
         trailer { id site thumbnail }
         studios(isMain: true) { nodes { name } }
         characters(sort: ROLE, perPage: 6) {
-          nodes {
-            name { full }
-            description
-            image { large }
+          edges {
+            role
+            node {
+              name { full }
+              image { large }
+              description
+            }
+            voiceActors(language: JAPANESE, sort: RELEVANCE) {
+              name { full }
+              image { large }
+            }
           }
-          edges { role }
         }
         recommendations(sort: RATING_DESC, perPage: 5) {
           nodes {
@@ -209,10 +215,16 @@ export const getAnimeDetails = async (id: string): Promise<AnimeDetails | null> 
 
     return {
       ...baseData,
-      characters: media.characters.nodes.map((char: any, index: number) => ({
-        name: char.name.full,
-        role: media.characters.edges[index].role,
-        description: cleanDescription(char.description).slice(0, 150) + (char.description?.length > 150 ? '...' : '')
+      characters: media.characters.edges.map((edge: any) => ({
+        name: edge.node.name.full,
+        role: edge.role,
+        image: edge.node.image.large,
+        description: cleanDescription(edge.node.description).slice(0, 150) + (edge.node.description?.length > 150 ? '...' : ''),
+        voiceActor: edge.voiceActors && edge.voiceActors.length > 0 ? {
+            name: edge.voiceActors[0].name.full,
+            image: edge.voiceActors[0].image.large,
+            language: 'Japanese'
+        } : undefined
       })),
       themes: [], // AniList doesn't strictly have "themes" in the basic query, leaving empty
       watchOrder: media.recommendations?.nodes?.map((n: any) => n.mediaRecommendation?.title?.romaji).filter(Boolean) || []

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ArrowLeft, Star, Calendar, Tv, Clock, Check, Plus, Loader2, PlayCircle } from 'lucide-react';
+import { ArrowLeft, Star, Calendar, Tv, Clock, Check, Plus, Loader2, PlayCircle, Mic } from 'lucide-react';
 import { Anime, AnimeDetails } from '../types';
 import { getAnimeDetails } from '../services/anilistService';
 
@@ -138,24 +138,49 @@ const DetailView: React.FC<DetailViewProps> = ({ initialData, onBack, isInWatchl
                  <span className="font-medium">Fetching details from AniList...</span>
                </div>
             ) : details ? (
-              <div className="grid md:grid-cols-2 gap-10">
+              <div className="grid lg:grid-cols-[2fr_1fr] gap-10">
                 {details.characters.length > 0 && (
                 <div>
                    <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-3">
                      <span className="w-1.5 h-6 bg-primary rounded-full" />
                      Main Characters
                    </h3>
-                   <div className="space-y-4">
+                   <div className="grid grid-cols-1 gap-4">
                       {details.characters.map((char, idx) => (
-                        <div key={idx} className="flex gap-4 p-3 rounded-xl bg-background border border-white/5 hover:border-primary/30 transition-colors group">
-                           <div className="w-12 h-12 rounded-full bg-surface border border-white/5 flex items-center justify-center text-primary font-bold text-xl shrink-0 group-hover:bg-primary group-hover:text-black transition-colors">
-                             {char.name[0]}
+                        <div key={idx} className="flex items-center justify-between p-3 rounded-xl bg-black/20 border border-white/5 hover:border-primary/30 transition-colors group">
+                           {/* Left: Character Info */}
+                           <div className="flex items-center gap-4">
+                             <div className="w-14 h-14 rounded-lg overflow-hidden bg-surface shrink-0 border border-white/10">
+                               {char.image ? (
+                                   <img src={char.image} alt={char.name} className="w-full h-full object-cover" />
+                               ) : (
+                                   <div className="w-full h-full flex items-center justify-center text-primary font-bold text-xl bg-surface">
+                                       {char.name[0]}
+                                   </div>
+                               )}
+                             </div>
+                             <div>
+                                 <div className="font-bold text-white group-hover:text-primary transition-colors text-base">{char.name}</div>
+                                 <div className="text-xs font-bold text-primary uppercase tracking-wider">{char.role}</div>
+                                 <div className="text-xs text-gray-500 mt-1 line-clamp-1 max-w-[200px]">{char.description}</div>
+                             </div>
                            </div>
-                           <div className="overflow-hidden">
-                             <div className="font-bold text-white group-hover:text-primary transition-colors">{char.name}</div>
-                             <div className="text-xs text-gray-500 mb-1 font-medium">{char.role}</div>
-                             <div className="text-xs text-gray-400 line-clamp-1">{char.description}</div>
-                           </div>
+
+                           {/* Right: VA Info */}
+                           {char.voiceActor && (
+                               <div className="flex items-center gap-4 text-right">
+                                   <div className="hidden sm:block">
+                                       <div className="font-bold text-white text-sm">{char.voiceActor.name}</div>
+                                       <div className="text-xs text-gray-500 flex items-center justify-end gap-1">
+                                            <Mic size={10} />
+                                            JAPANESE
+                                       </div>
+                                   </div>
+                                   <div className="w-12 h-12 rounded-full overflow-hidden bg-surface shrink-0 border border-white/10">
+                                       <img src={char.voiceActor.image} alt={char.voiceActor.name} className="w-full h-full object-cover" />
+                                   </div>
+                               </div>
+                           )}
                         </div>
                       ))}
                    </div>
@@ -168,14 +193,16 @@ const DetailView: React.FC<DetailViewProps> = ({ initialData, onBack, isInWatchl
                      <span className="w-1.5 h-6 bg-secondary rounded-full" />
                      Recommendations
                    </h3>
-                   <ol className="space-y-3 relative border-l border-white/10 ml-3">
+                   <div className="relative border-l-2 border-white/10 ml-3 space-y-6 py-2">
                      {details.watchOrder.map((item, idx) => (
-                       <li key={idx} className="pl-6 relative">
-                         <div className="absolute -left-1.5 top-2 w-3 h-3 rounded-full bg-surface border-2 border-secondary" />
-                         <span className="text-gray-300 font-medium hover:text-white transition-colors cursor-pointer">{item}</span>
-                       </li>
+                       <div key={idx} className="pl-6 relative group cursor-pointer">
+                         <div className="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-surface border-2 border-secondary group-hover:scale-125 transition-transform shadow-[0_0_10px_rgba(250,204,21,0.3)]" />
+                         <span className="text-gray-300 font-medium hover:text-white transition-colors block text-base leading-tight group-hover:translate-x-1 duration-200">
+                             {item}
+                         </span>
+                       </div>
                      ))}
-                   </ol>
+                   </div>
                 </div>
                 )}
               </div>

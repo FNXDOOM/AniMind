@@ -35,6 +35,12 @@ export interface Character {
   name: string;
   role: string; // Main, Supporting
   description: string;
+  image?: string;
+  voiceActor?: {
+    name: string;
+    image: string;
+    language?: string;
+  };
 }
 
 export interface AnimeDetails extends Anime {

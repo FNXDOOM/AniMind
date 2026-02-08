@@ -10,7 +10,7 @@ import { searchAnime, getTrendingAnime, getDiscoveryAnime, getSearchSuggestions 
 import { getCurrentUser, signIn, signUp, signOut, deleteAccount } from './services/authService';
 import { fetchWatchlist, addToWatchlist, removeFromWatchlist, updateWatchlistStatus } from './services/dbService';
 import { Anime, ViewState, WatchStatus, User } from './types';
-import { Search, Loader2, HeartCrack, ArrowUpRight, ChevronDown, RefreshCw, HardDrive, PlayCircle, Filter, Calendar, RotateCcw } from 'lucide-react';
+import { Search, Loader2, HeartCrack, ArrowUpRight, ChevronDown, RefreshCw, HardDrive, PlayCircle, Filter, Calendar, RotateCcw, Star, Check, Plus } from 'lucide-react';
 
 const GENRES = ["Action", "Adventure", "Comedy", "Drama", "Fantasy", "Horror", "Mecha", "Mystery", "Romance", "Sci-Fi", "Slice of Life", "Sports", "Supernatural", "Thriller"];
 const YEARS = ["2025", "2024", "2023", "2022", "2021", "2020", "2019", "2018", "2017", "2016", "2015", "2010", "2005", "2000"];
@@ -186,7 +186,6 @@ const App: React.FC = () => {
             data = await getDiscoveryAnime(1, newFilters.genre, newFilters.year, newFilters.season);
         }
         setHomeAnime(data);
-        // Scroll to grid if needed, or stay at top
       } catch (e) {
         console.error("Filter failed", e);
       }
@@ -373,26 +372,26 @@ const App: React.FC = () => {
     id: string,
     onSelect: (val: string) => void 
   }) => (
-      <div className={`relative min-w-[160px] ${activeDropdown === id ? 'z-50' : 'z-auto'}`}>
-          <label className="block text-sm font-bold text-gray-200 mb-2">{label}</label>
+      <div className={`relative min-w-[140px] ${activeDropdown === id ? 'z-50' : 'z-auto'}`}>
           <button
               onClick={(e) => {
                   e.stopPropagation();
                   setActiveDropdown(activeDropdown === id ? null : id);
               }}
-              className="w-full bg-surface border border-white/10 rounded-lg px-4 py-3 flex items-center justify-between hover:border-white/20 transition-colors"
+              className="w-full bg-surface border border-white/10 rounded-lg px-3 py-3 flex items-center justify-between hover:border-white/20 transition-colors text-sm group"
           >
-              <span className={value === 'Any' ? 'text-gray-400' : 'text-white font-medium'}>
-                  {value}
-              </span>
-              <ChevronDown size={16} className={`text-gray-500 transition-transform ${activeDropdown === id ? 'rotate-180' : ''}`} />
+              <div className="flex flex-col items-start leading-none gap-1">
+                  <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider group-hover:text-primary transition-colors">{label}</span>
+                  <span className="font-bold text-white truncate max-w-[100px]">{value}</span>
+              </div>
+              <ChevronDown size={14} className={`text-gray-500 transition-transform ${activeDropdown === id ? 'rotate-180' : ''}`} />
           </button>
 
           {activeDropdown === id && (
               <div className="absolute top-full left-0 right-0 mt-2 bg-surface border border-white/10 rounded-lg shadow-xl z-50 max-h-60 overflow-y-auto custom-scrollbar animate-in fade-in slide-in-from-top-2">
                   <button
                       onClick={() => onSelect('Any')}
-                      className="w-full text-left px-4 py-2 hover:bg-white/5 text-gray-400 hover:text-white transition-colors"
+                      className="w-full text-left px-4 py-2 hover:bg-white/5 text-gray-400 hover:text-white transition-colors text-sm"
                   >
                       Any
                   </button>
@@ -400,7 +399,7 @@ const App: React.FC = () => {
                       <button
                           key={opt}
                           onClick={() => onSelect(opt)}
-                          className={`w-full text-left px-4 py-2 hover:bg-white/5 transition-colors ${value === opt ? 'text-primary font-bold' : 'text-gray-300'}`}
+                          className={`w-full text-left px-4 py-2 hover:bg-white/5 transition-colors text-sm ${value === opt ? 'text-primary font-bold' : 'text-gray-300'}`}
                       >
                           {opt}
                       </button>
@@ -430,132 +429,133 @@ const App: React.FC = () => {
     switch (currentView) {
       case ViewState.HOME:
         const isFiltered = filters.genre !== 'Any' || filters.year !== 'Any' || filters.season !== 'Any';
-        
+        const heroAnime = homeAnime[0];
+        const gridAnime = homeAnime.slice(1);
+
         return (
-          <div className="space-y-12 animate-in fade-in duration-500 relative" onClick={() => setActiveDropdown(null)}>
+          <div className="space-y-10 animate-in fade-in duration-500 pb-12" onClick={() => setActiveDropdown(null)}>
             
-            {/* Content Container - REMOVED z-10 to prevent z-index clipping of dropdowns */}
-            <div className="relative">
-                {/* Hero Section */}
-                <div className="relative py-16 md:py-24 px-4 flex flex-col md:flex-row items-center gap-12 max-w-6xl mx-auto">
-                    <div className="flex-1 space-y-6 z-10 text-center md:text-left">
-                        <h1 className="text-5xl md:text-7xl font-black text-white leading-[1.1] tracking-tight drop-shadow-lg">
-                            Anime Enthusiast.<br />
-                            Web Explorer.<br />
-                            <span className="text-primary/90">Binge Watcher.</span>
+            {/* Featured Hero Section */}
+            {!isFiltered && heroAnime ? (
+                <div className="relative w-full h-[60vh] min-h-[500px] rounded-3xl overflow-hidden shadow-2xl group cursor-pointer border border-white/10" onClick={() => setSelectedAnime(heroAnime)}>
+                    {/* Background Image with Blur/Overlay */}
+                    <div className="absolute inset-0">
+                        <img 
+                            src={heroAnime.imageUrl} 
+                            alt={heroAnime.title} 
+                            className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/60 to-transparent" />
+                        <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0a] via-[#0a0a0a]/40 to-transparent" />
+                    </div>
+
+                    {/* Hero Content */}
+                    <div className="absolute bottom-0 left-0 w-full p-8 md:p-12 lg:p-16 flex flex-col items-start gap-4 md:gap-6 z-20 max-w-3xl">
+                        <div className="flex flex-wrap items-center gap-3 text-sm md:text-base font-bold text-primary uppercase tracking-wider">
+                            <span className="bg-primary text-black px-3 py-1 rounded-full">Trending #1</span>
+                            <span className="text-white">•</span>
+                            <span>{heroAnime.genres[0]}</span>
+                            <span className="text-white">•</span>
+                            <span className="flex items-center gap-1"><Star size={16} className="fill-current" /> {heroAnime.rating}</span>
+                        </div>
+                        
+                        <h1 className="text-4xl md:text-6xl lg:text-7xl font-black text-white leading-[0.9] tracking-tight drop-shadow-xl line-clamp-2">
+                            {heroAnime.title}
                         </h1>
                         
-                        <p className="text-xl text-gray-200 font-medium max-w-2xl leading-relaxed drop-shadow-md">
-                            Turning free time into interactive experiences. Discover your next obsession with data powered by AniList.
+                        <p className="text-gray-200 text-lg md:text-xl line-clamp-3 font-medium max-w-2xl drop-shadow-md">
+                            {heroAnime.synopsis}
                         </p>
                         
-                        <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 pt-4">
+                        <div className="flex items-center gap-4 pt-4">
                             <button 
-                            onClick={() => setCurrentView(ViewState.SEARCH)}
-                            className="bg-primary text-black px-8 py-4 rounded-xl font-bold text-lg hover:bg-white transition-all shadow-lg shadow-primary/20 flex items-center gap-2 group"
+                                onClick={(e) => { e.stopPropagation(); setSelectedAnime(heroAnime); }}
+                                className="bg-white text-black px-8 py-3.5 rounded-xl font-bold text-lg hover:bg-primary transition-colors flex items-center gap-2"
                             >
-                                Start Discovery
-                                <ArrowUpRight size={20} className="group-hover:-translate-y-1 group-hover:translate-x-1 transition-transform" />
+                                <PlayCircle className="fill-current" /> Play Now
                             </button>
                             <button 
-                            onClick={() => document.getElementById('discovery-filters')?.scrollIntoView({ behavior: 'smooth' })}
-                            className="bg-black/30 backdrop-blur-md text-white border border-white/10 px-8 py-4 rounded-xl font-bold text-lg hover:bg-white/10 transition-all flex items-center gap-2"
+                                onClick={(e) => toggleWatchlist(e, heroAnime)}
+                                className={`px-8 py-3.5 rounded-xl font-bold text-lg border transition-all flex items-center gap-2 backdrop-blur-md ${isInWatchlist(heroAnime) ? 'bg-primary/20 border-primary text-primary' : 'bg-white/10 border-white/20 text-white hover:bg-white/20'}`}
                             >
-                                Scroll Down
-                                <ChevronDown size={20} />
+                                {isInWatchlist(heroAnime) ? <Check /> : <Plus />} My List
                             </button>
                         </div>
                     </div>
-
-                    <div className="flex-1 relative w-full max-w-md md:max-w-full flex justify-center">
-                        <div className="absolute inset-0 bg-secondary/10 blur-[100px] rounded-full scale-75" />
-                        <img 
-                            src="https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx154587-g412XF1q74zF.jpg" 
-                            className="relative z-10 w-72 md:w-96 rounded-3xl shadow-2xl border border-white/10 rotate-3 hover:rotate-0 transition-transform duration-500"
-                            alt="Hero Anime"
-                        />
-                    </div>
                 </div>
+            ) : null}
 
-                {/* Discovery Filters Dropdowns */}
-                <div id="discovery-filters" className="pt-8 mb-12">
-                    <div className="flex flex-wrap items-end gap-4 bg-transparent">
-                        <FilterDropdown 
-                            label="Genres" 
-                            value={filters.genre} 
-                            options={GENRES} 
-                            id="dropdown-genre"
-                            onSelect={(val) => handleFilterChange('genre', val)} 
-                        />
-                        <FilterDropdown 
-                            label="Year" 
-                            value={filters.year} 
-                            options={YEARS} 
-                            id="dropdown-year"
-                            onSelect={(val) => handleFilterChange('year', val)} 
-                        />
-                        <FilterDropdown 
-                            label="Season" 
-                            value={filters.season} 
-                            options={SEASONS} 
-                            id="dropdown-season"
-                            onSelect={(val) => handleFilterChange('season', val)} 
-                        />
-                        
-                        {isFiltered && (
-                            <button 
-                                onClick={resetFilters}
-                                className="mb-[2px] h-[48px] px-6 rounded-lg border border-white/10 text-gray-400 hover:text-white hover:bg-white/5 transition-colors font-medium flex items-center gap-2"
-                            >
-                                <RotateCcw size={18} />
-                                Reset
-                            </button>
-                        )}
-                    </div>
+            {/* Filters & Header */}
+            <div id="discovery-filters" className="flex flex-col md:flex-row items-end md:items-center justify-between gap-6 py-6 border-b border-white/5 mb-8">
+                <div>
+                   <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+                      {isFiltered ? 'Search Results' : 'Discover'}
+                      <span className="text-sm font-normal text-gray-500 bg-white/5 px-2 py-1 rounded-md border border-white/5 hidden md:inline-block">
+                         {isFiltered ? `${homeAnime.length} Found` : 'Recommended for you'}
+                      </span>
+                   </h2>
                 </div>
-
-                {/* Grid Header */}
-                <div id="content-grid" className="flex items-center justify-between mb-8 border-b border-white/5 pb-4">
-                    <h3 className="text-3xl font-black text-white drop-shadow-md flex items-center gap-3">
-                        {!isFiltered ? 'Trending Now' : 'Filtered Results'}
-                    </h3>
+                
+                <div className="flex flex-wrap items-center gap-3">
+                    <FilterDropdown 
+                        label="Genre" 
+                        value={filters.genre} 
+                        options={GENRES} 
+                        id="dropdown-genre"
+                        onSelect={(val) => handleFilterChange('genre', val)} 
+                    />
+                     <FilterDropdown 
+                        label="Year" 
+                        value={filters.year} 
+                        options={YEARS} 
+                        id="dropdown-year"
+                        onSelect={(val) => handleFilterChange('year', val)} 
+                    />
+                     <FilterDropdown 
+                        label="Season" 
+                        value={filters.season} 
+                        options={SEASONS} 
+                        id="dropdown-season"
+                        onSelect={(val) => handleFilterChange('season', val)} 
+                    />
                     
-                    <div className="text-sm text-gray-400">
-                        {isFiltered ? 'Showing matches based on your filters' : 'Popular this season'}
-                    </div>
-                </div>
-                
-                {/* Content Grid */}
-                {homeAnime.length === 0 ? (
-                    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
-                        {[1,2,3,4,5].map(i => (
-                            <div key={i} className="aspect-[2/3] bg-surface rounded-2xl animate-pulse border border-white/5" />
-                        ))}
-                    </div>
-                ) : (
-                    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
-                    {homeAnime.map(anime => (
-                        <AnimeCard 
-                        key={anime.id} 
-                        anime={anime} 
-                        onClick={setSelectedAnime}
-                        isInWatchlist={isInWatchlist(anime)}
-                        onToggleWatchlist={toggleWatchlist}
-                        />
-                    ))}
-                    </div>
-                )}
-                
-                {/* Infinite Scroll Loader */}
-                <div ref={loadMoreRef} className="py-12 flex justify-center">
-                    {loadingMore && <Loader2 className="animate-spin text-primary w-8 h-8" />}
+                    {isFiltered && (
+                        <button 
+                            onClick={resetFilters}
+                            className="h-[48px] w-[48px] flex items-center justify-center rounded-lg border border-white/10 text-gray-400 hover:text-white hover:bg-white/5 transition-colors bg-surface"
+                            title="Reset Filters"
+                        >
+                            <RotateCcw size={18} />
+                        </button>
+                    )}
                 </div>
             </div>
-            
-            {/* Click outside handler overlay when dropdown is open */}
-            {activeDropdown && (
-                <div className="fixed inset-0 z-40 bg-transparent" onClick={() => setActiveDropdown(null)} />
+
+            {/* Content Grid */}
+            {homeAnime.length === 0 ? (
+                 <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-x-6 gap-y-10">
+                    {[1,2,3,4,5,6,7,8,9,10].map(i => (
+                        <div key={i} className="aspect-[2/3] bg-surface rounded-2xl animate-pulse border border-white/5" />
+                    ))}
+                 </div>
+            ) : (
+                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-x-6 gap-y-10">
+                    {(isFiltered ? homeAnime : gridAnime).map((anime, idx) => (
+                        <div key={anime.id} className="animate-in fade-in duration-500" style={{ animationDelay: `${idx * 50}ms` }}>
+                            <AnimeCard 
+                                anime={anime} 
+                                onClick={setSelectedAnime}
+                                isInWatchlist={isInWatchlist(anime)}
+                                onToggleWatchlist={toggleWatchlist}
+                            />
+                        </div>
+                    ))}
+                </div>
             )}
+
+            <div ref={loadMoreRef} className="py-12 flex justify-center">
+                 {loadingMore && <Loader2 className="animate-spin text-primary w-8 h-8" />}
+            </div>
           </div>
         );
 
