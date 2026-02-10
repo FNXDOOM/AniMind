@@ -7,10 +7,12 @@ import VideoModal from './components/VideoModal';
 import ConfirmationModal from './components/ConfirmationModal';
 import AdminPanel from './components/AdminPanel';
 import { searchAnime, getTrendingAnime, getDiscoveryAnime, getSearchSuggestions as getAniListSuggestions } from './services/anilistService';
-import { getCurrentUser, signIn, signUp, signOut, deleteAccount } from './services/authService';
+import { getCurrentUser, signIn, signUp, signOut, deleteAccount, handleGoogleCallback } from './services/authService';
 import { fetchWatchlist, addToWatchlist, removeFromWatchlist, updateWatchlistStatus } from './services/dbService';
 import { Anime, ViewState, WatchStatus, User } from './types';
 import { Search, Loader2, HeartCrack, ArrowUpRight, ChevronDown, RefreshCw, HardDrive, PlayCircle, Filter, Calendar, RotateCcw, Star, Check, Plus } from 'lucide-react';
+
+
 
 const GENRES = ["Action", "Adventure", "Comedy", "Drama", "Fantasy", "Horror", "Mecha", "Mystery", "Romance", "Sci-Fi", "Slice of Life", "Sports", "Supernatural", "Thriller"];
 const YEARS = ["2025", "2024", "2023", "2022", "2021", "2020", "2019", "2018", "2017", "2016", "2015", "2010", "2005", "2000"];
@@ -84,6 +86,44 @@ const App: React.FC = () => {
     };
     init();
   }, []);
+
+  
+  // Handle Google OAuth Callback
+  useEffect(() => {
+    const processGoogleCallback = async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const mode = urlParams.get('mode'); // 'signin' or 'signup'
+      
+      // Check if we're returning from Google OAuth
+      if (mode && (mode === 'signin' || mode === 'signup')) {
+        setAuthLoading(true);
+        
+        try {
+          const result = await handleGoogleCallback();
+          
+          if (result.error) {
+            // Show error to user
+            alert(result.error.message || 'Google authentication failed');
+          } else if (result.user) {
+            // Success - set the user
+            setUser(result.user);
+          }
+          
+          // Clean up URL
+          window.history.replaceState({}, document.title, window.location.pathname);
+        } catch (error: any) {
+          alert(error.message || 'Authentication failed');
+          window.history.replaceState({}, document.title, window.location.pathname);
+        } finally {
+          setAuthLoading(false);
+        }
+      }
+    };
+    
+    processGoogleCallback();
+  }, []);
+
+
 
   // 2. Load Watchlist from DB when User changes
   useEffect(() => {

@@ -5,9 +5,6 @@ export const signUp = async (email: string, password: string, username: string):
   try {
     const avatar = `https://ui-avatars.com/api/?name=${username}&background=8b5cf6&color=fff&bold=true`;
 
-    // 1. Sign up the user with metadata
-    // The Database Trigger 'on_auth_user_created' will automatically create the public.profiles row
-    // using the data provided in the 'options.data' object.
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -51,7 +48,6 @@ export const signIn = async (email: string, password: string): Promise<{ user: U
     if (error) return { user: null, error };
 
     if (data && data.user) {
-      // Fetch profile to get role (is_admin) and other details
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('username, avatar_url, is_admin')
@@ -62,8 +58,6 @@ export const signIn = async (email: string, password: string): Promise<{ user: U
         console.error('Error fetching profile during sign in:', profileError);
       }
       
-      
-      // Prioritize profile data, fallback to metadata or defaults
       const username = profile?.username || data.user.user_metadata?.username || email.split('@')[0];
       const avatar = profile?.avatar_url || data.user.user_metadata?.avatar_url;
       const isAdmin = profile?.is_admin === true;
@@ -122,7 +116,6 @@ export const getCurrentUser = async (): Promise<User | null> => {
 
     const user = response.data.session.user;
     
-    // Always fetch profile to ensure we have the latest is_admin status
     const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('username, avatar_url, is_admin')
@@ -132,8 +125,6 @@ export const getCurrentUser = async (): Promise<User | null> => {
     if (profileError) {
       console.error('Error fetching profile in getCurrentUser:', profileError);
     }
-    
-    
     
     const username = profile?.username || user.user_metadata?.username || user.email?.split('@')[0] || 'User';
     const avatar = profile?.avatar_url || user.user_metadata?.avatar_url;
@@ -161,7 +152,6 @@ export const getCurrentUser = async (): Promise<User | null> => {
 
 export const sendPasswordResetEmail = async (email: string) => {
   try {
-    // Requires Supabase email template for token
     const { error } = await supabase.auth.resetPasswordForEmail(email);
     return { error };
   } catch (err) {
@@ -188,5 +178,154 @@ export const updateUserPassword = async (password: string) => {
     return { data, error };
   } catch (err) {
     return { data: null, error: err };
+  }
+};
+
+// --- GOOGLE SIGN-IN (For existing users only) ---
+
+export const signInWithGoogle = async (): Promise<{ error: any }> => {
+  try {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}?mode=signin`,
+      },
+    });
+
+    if (error) return { error };
+    return { error: null };
+  } catch (err) {
+    console.error("Google Sign-In exception:", err);
+    return { error: err };
+  }
+};
+
+// --- GOOGLE SIGN-UP (Create new account) ---
+
+export const signUpWithGoogle = async (): Promise<{ error: any }> => {
+  try {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}?mode=signup`,
+      },
+    });
+
+    if (error) return { error };
+    return { error: null };
+  } catch (err) {
+    console.error("Google Sign-Up exception:", err);
+    return { error: err };
+  }
+};
+
+// --- HANDLE GOOGLE CALLBACK ---
+
+export const handleGoogleCallback = async (): Promise<{ user: User | null, error: any }> => {
+  try {
+    // Get URL params to check mode
+    const urlParams = new URLSearchParams(window.location.search);
+    const mode = urlParams.get('mode'); // 'signin' or 'signup'
+    
+    // Get session
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    
+    if (sessionError) return { user: null, error: sessionError };
+    if (!session || !session.user) return { user: null, error: new Error('No session found') };
+
+    const authUser = session.user;
+    const email = authUser.email;
+
+    if (!email) {
+      await supabase.auth.signOut();
+      return { user: null, error: new Error('Email not found in Google account') };
+    }
+
+    // Check if profile exists
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('id, username, avatar_url, is_admin')
+      .eq('id', authUser.id)
+      .single();
+
+    // SIGN-IN MODE: Profile must exist
+    if (mode === 'signin') {
+      if (profileError || !profile) {
+        await supabase.auth.signOut();
+        return { 
+          user: null, 
+          error: new Error('Account not found. Please sign up first.')
+        };
+      }
+
+      // Profile exists - sign in successful
+      return {
+        user: {
+          id: authUser.id,
+          username: profile.username,
+          avatar: profile.avatar_url,
+          email,
+          isAdmin: profile.is_admin === true
+        },
+        error: null
+      };
+    }
+
+    // SIGN-UP MODE: Create profile if doesn't exist
+    if (mode === 'signup') {
+      // If profile already exists, just sign them in
+      if (profile) {
+        return {
+          user: {
+            id: authUser.id,
+            username: profile.username,
+            avatar: profile.avatar_url,
+            email,
+            isAdmin: profile.is_admin === true
+          },
+          error: null
+        };
+      }
+
+      // Create new profile
+      const username = authUser.user_metadata?.full_name || email.split('@')[0];
+      const avatar = authUser.user_metadata?.avatar_url || 
+                     `https://ui-avatars.com/api/?name=${encodeURIComponent(username)}&background=8b5cf6&color=fff&bold=true`;
+
+      const { error: insertError } = await supabase
+        .from('profiles')
+        .insert({
+          id: authUser.id,
+          username,
+          avatar_url: avatar,
+          is_admin: false
+        });
+
+      if (insertError) {
+        console.error('Failed to create profile:', insertError);
+        await supabase.auth.signOut();
+        return { user: null, error: insertError };
+      }
+
+      return {
+        user: {
+          id: authUser.id,
+          username,
+          avatar,
+          email,
+          isAdmin: false
+        },
+        error: null
+      };
+    }
+
+    // Unknown mode
+    await supabase.auth.signOut();
+    return { user: null, error: new Error('Invalid authentication mode') };
+
+  } catch (err) {
+    console.error("Google callback exception:", err);
+    await supabase.auth.signOut();
+    return { user: null, error: err };
   }
 };
